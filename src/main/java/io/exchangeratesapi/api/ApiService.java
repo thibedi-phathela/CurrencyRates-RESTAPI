@@ -23,24 +23,28 @@ public class ApiService {
 		this.apiKey = apiKey;
         this.objectMapper = objectMapper;
     }
+    
+   //Method to make request to API
+  	private Mono<JsonNode> request(String base){
+  		return webClient.get()
+                  .uri(apiKey+base)
+                  .retrieve()
+                  .bodyToMono(JsonNode.class);
+  	
+  	}
 	
     //Method to retrieve all exchange rates for a given base currency
 	public Mono<String> getAllRates(String base){
-		return webClient.get()
-                .uri(apiKey+base)
-                .retrieve()
-                .bodyToMono(JsonNode.class)
+		return request(base)
                 .map(jsonNode -> jsonNode.get("conversion_rates").toString());
+		
 	}
 	
 	//Method to retrieve a specific exchange rate for given base currency and target
 	public Mono<String> getRate(String base, String target) {
 	
 		try {
-			return webClient.get()
-					.uri(apiKey+base)
-					.retrieve()
-					.bodyToMono(JsonNode.class)
+			return request(base)
 					.flatMap(jsonNode -> Mono.justOrEmpty(jsonNode.get("conversion_rates").get(target)))
 					.map(currencyCode -> { 
 						ObjectNode result = objectMapper.createObjectNode();
@@ -48,10 +52,13 @@ public class ApiService {
 						result.set("exchangeRate", currencyCode);
                     return result.toString();
                 });
+			
     }
 		catch(Exception e) {
 		    return null;
+		    
 		}
+		
 	}
 	
 }
