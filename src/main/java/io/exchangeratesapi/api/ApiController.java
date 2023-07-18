@@ -17,12 +17,11 @@ public class ApiController {
 	
 	@GetMapping("/rates/{base}")
 	public Mono<String> getAllRates(@PathVariable String base){
-		return apiService.getAllRates(base);		
+		return apiService.getAllRatesForBase(base);		
 	}
 	
 	@GetMapping("/rate/{base}/{target}")
 	public Mono<String> getRate(@PathVariable String target, @PathVariable String base){
 		return apiService.getRate(base,target);
 	}
-	
 }
